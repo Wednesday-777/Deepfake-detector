@@ -10,9 +10,21 @@ IMG_SIZE = (224, 224)
 LAST_CONV_LAYER_NAME = "top_activation"
 
 
+import keras
+
+# Provide backward-compatible Dense layer that ignores quantization_config if not supported
+class CompatibleDense(keras.layers.Dense):
+    def __init__(self, *args, **kwargs):
+        kwargs.pop("quantization_config", None)
+        super().__init__(*args, **kwargs)
+
+
 def load_model(model_path: str):
-    
-    model = tf.keras.models.load_model(model_path)
+    custom_objects = {"Dense": CompatibleDense}
+    try:
+        model = keras.models.load_model(model_path, compile=False, custom_objects=custom_objects)
+    except Exception:
+        model = tf.keras.models.load_model(model_path, compile=False, custom_objects=custom_objects)
     base_model = model.get_layer("efficientnetb0")
     return model, base_model
 
