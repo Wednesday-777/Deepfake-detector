@@ -20,9 +20,13 @@ Test performance: 95.14% accuracy · 0.9926 AUC
 Interpretability: Grad-CAM on the final convolutional layer
 # Tech stack
 Model - TensorFlow / Keras, EfficientNetB0, Grad-CAM
+
 Backend -	FastAPI
+
 Frontend - React (Vite)
+
 Backend hosting - Render (free tier)
+
 Frontend hosting - Vercel
 # Limitations
 Trained only on StyleGAN-generated fakes - does not reliably detect diffusion-generated images (e.g., Gemini, Midjourney, Stable Diffusion). Confirmed via testing: a Gemini-generated passport-style photo was classified as real with 89.4% confidence despite ideal framing.
