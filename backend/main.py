@@ -1,3 +1,4 @@
+import os
 from io import BytesIO
 
 from fastapi import FastAPI, File, UploadFile, HTTPException
@@ -6,7 +7,8 @@ from PIL import Image
 
 from model_utils import load_model, predict_and_explain
 
-MODEL_PATH = r"D:\Deepfake-detector\backend\deepfake_detector_final.keras"
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.environ.get("MODEL_PATH", os.path.join(CURRENT_DIR, "deepfake_detector_final.keras"))
 
 app = FastAPI(title="Deepfake Detector API")
 
