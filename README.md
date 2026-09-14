@@ -29,7 +29,10 @@ Backend hosting - Render (free tier)
 
 Frontend hosting - Vercel
 # Limitations
-Trained only on StyleGAN-generated fakes - does not reliably detect diffusion-generated images (e.g., Gemini, Midjourney, Stable Diffusion). Confirmed via testing: a Gemini-generated passport-style photo was classified as real with 89.4% confidence despite ideal framing.
+Trained only on StyleGAN-generated fakes - does not reliably detect diffusion-generated images (e.g., Gemini, Midjourney, Stable Diffusion).Confirmed via testing: a Gemini-generated passport-style photo was classified as real with 89.4% confidence despite ideal framing.
+
 Built for cropped, front-facing face images - untested on full-body or non-face content.
+
 Recall on fakes (98%) is higher than on real images (93%) - the model leans toward flagging uncertain cases as fake rather than missing one.
+
 Free-tier backend hosting may take up to ~60s to respond on first request after inactivity (cold start).
