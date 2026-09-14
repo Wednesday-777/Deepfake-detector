@@ -12,19 +12,44 @@ LAST_CONV_LAYER_NAME = "top_activation"
 
 import keras
 
-# Provide backward-compatible Dense layer that ignores quantization_config if not supported
-class CompatibleDense(keras.layers.Dense):
-    def __init__(self, *args, **kwargs):
-        kwargs.pop("quantization_config", None)
-        super().__init__(*args, **kwargs)
+# Patch Keras Layer & Dense to ensure compatibility with models saved in newer Keras versions
+def _patch_keras_layer_init():
+    try:
+        orig_dense_init = keras.layers.Dense.__init__
+        def safe_dense_init(self, *args, **kwargs):
+            kwargs.pop("quantization_config", None)
+            return orig_dense_init(self, *args, **kwargs)
+        keras.layers.Dense.__init__ = safe_dense_init
+    except Exception:
+        pass
+
+    try:
+        orig_layer_init = keras.layers.Layer.__init__
+        def safe_layer_init(self, *args, **kwargs):
+            kwargs.pop("quantization_config", None)
+            return orig_layer_init(self, *args, **kwargs)
+        keras.layers.Layer.__init__ = safe_layer_init
+    except Exception:
+        pass
+
+    if hasattr(tf, "keras") and hasattr(tf.keras, "layers"):
+        try:
+            orig_tf_dense = tf.keras.layers.Dense.__init__
+            def safe_tf_dense(self, *args, **kwargs):
+                kwargs.pop("quantization_config", None)
+                return orig_tf_dense(self, *args, **kwargs)
+            tf.keras.layers.Dense.__init__ = safe_tf_dense
+        except Exception:
+            pass
+
+_patch_keras_layer_init()
 
 
 def load_model(model_path: str):
-    custom_objects = {"Dense": CompatibleDense}
     try:
-        model = keras.models.load_model(model_path, compile=False, custom_objects=custom_objects)
+        model = keras.models.load_model(model_path, compile=False)
     except Exception:
-        model = tf.keras.models.load_model(model_path, compile=False, custom_objects=custom_objects)
+        model = tf.keras.models.load_model(model_path, compile=False)
     base_model = model.get_layer("efficientnetb0")
     return model, base_model
 
